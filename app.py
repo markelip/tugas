@@ -15,6 +15,7 @@ if not API_KEY:
     raise ValueError("❌ API Key tidak ditemukan! Cek .env atau Variables di Railway!")
 
 print(f"✅ API Key ditemukan: {API_KEY[:5]}...")  # Debugging, cuma nampilin sebagian
+print(f"🔍 API Key dari Railway: {API_KEY}")  # Cek API Key terbaca atau nggak
 
 # Konfigurasi API Key & Model
 try:
