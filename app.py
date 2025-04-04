@@ -1,43 +1,41 @@
 from flask import Flask, render_template, request, jsonify
-from flask_cors import CORS  # Tambahkan ini
+from flask_cors import CORS  # ⬅️ Tambahan ini
 import google.generativeai as genai
 import os
 from dotenv import load_dotenv
 
 app = Flask(__name__)
-CORS(app)  # Aktifkan CORS di seluruh route
+CORS(app, origins=["https://b4f70631.tugas.pages.dev"])  # ⬅️ Izinkan domain Cloudflare
 
-# Load variabel dari file .env (hanya berfungsi secara lokal)
+# Load variabel dari file .env (lokal)
 load_dotenv()
 
-# Ambil API Key dari environment
 API_KEY = os.getenv("GEMINI_API_KEY")
 
 if not API_KEY:
-    raise ValueError("❌ API Key tidak ditemukan! Cek .env atau Variables di Railway!")
+    raise ValueError("❌ API Key tidak ditemukan! Cek .env atau Railway Variables!")
 
 print(f"✅ API Key ditemukan: {API_KEY[:5]}...")
-print(f"🔍 API Key dari Railway: {API_KEY}")
 
-# Konfigurasi API Key & Model
+# Konfigurasi API
 try:
     genai.configure(api_key=API_KEY)
     model = genai.GenerativeModel("gemini-1.5-flash")
 except Exception as e:
-    print(f"⚠️ Gagal menghubungkan ke Gemini API: {e}")
+    print(f"⚠️ Gagal konek ke Gemini: {e}")
     model = None
 
-# Daftar balasan otomatis berdasarkan input user
+# Balasan preset
 responses = {
     "A": "📢 Kabar terkini: Chatbot ini sedang dikembangkan!",
-    "B": "🤖 Chatbot adalah program yang bisa berkomunikasi dengan manusia melalui teks atau suara.",
-    "C": "🛠️ Cara menggunakan chatbot ini: Ketik pilihan A, B, C, atau pesan bebas!",
-    "D": "👋 Terima kasih sudah menggunakan Chatbot by Farouq! Sampai jumpa!",
+    "B": "🤖 Chatbot adalah program yang bisa ngobrol sama manusia.",
+    "C": "🛠️ Cara pakai: Ketik A, B, C, atau pesan bebas!",
+    "D": "👋 Makasih udah pakai Chatbot by Farouq!",
 }
 
 @app.route("/")
 def index():
-    return render_template("index.html")
+    return "✅ Backend aktif di Railway!"
 
 @app.route("/chat", methods=["POST"])
 def chat():
@@ -48,18 +46,18 @@ def chat():
         bot_response = responses[user_message]
     else:
         if model is None:
-            bot_response = "⚠️ AI sedang tidak tersedia, coba lagi nanti!"
+            bot_response = "⚠️ AI nggak tersedia, coba lagi nanti!"
         else:
             try:
                 response = model.generate_content(
-                    user_message, generation_config={"max_output_tokens": 30}
+                    user_message, generation_config={"max_output_tokens": 50}
                 )
-                bot_response = response.text if response and response.text else "❌ Tidak bisa mendapatkan respons dari AI"
+                bot_response = response.text or "❌ AI gak ngasih jawaban."
             except Exception as e:
-                bot_response = f"⚠️ Terjadi kesalahan saat memproses AI: {str(e)}"
+                bot_response = f"⚠️ Error dari AI: {str(e)}"
 
     return jsonify({"response": bot_response})
 
 if __name__ == "__main__":
-    port = int(os.getenv("PORT", 5000))  # Gunakan PORT dari Railway
-    app.run(host="0.0.0.0", port=port, debug=True, threaded=True)
+    port = int(os.getenv("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)

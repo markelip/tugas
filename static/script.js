@@ -1,14 +1,14 @@
 document.getElementById("send").addEventListener("click", async function () {
     let userInput = document.getElementById("user-input").value;
-    if (!userInput.trim()) return; // Cegah input kosong
+    if (!userInput.trim()) return;
 
     let chatContainer = document.getElementById("chat-container");
 
-    // Tambahkan pesan pengguna ke UI
+    // Tambahkan pesan pengguna
     let userMessage = `<div class="bubble user">${userInput}</div>`;
     chatContainer.innerHTML += userMessage;
 
-    document.getElementById("user-input").value = ""; // Kosongkan input
+    document.getElementById("user-input").value = "";
 
     try {
         let response = await fetch("https://web-production-5bbc.up.railway.app/chat", {
@@ -19,7 +19,6 @@ document.getElementById("send").addEventListener("click", async function () {
 
         let data = await response.json();
 
-        // Tambahkan pesan bot ke UI
         let botMessage = `<div class="bubble bot">${data.response}</div>`;
         chatContainer.innerHTML += botMessage;
     } catch (error) {
