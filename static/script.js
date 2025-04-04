@@ -11,7 +11,7 @@ document.getElementById("send").addEventListener("click", async function () {
     document.getElementById("user-input").value = ""; // Kosongkan input
 
     try {
-        let response = await fetch("/chat", {
+        let response = await fetch("https://web-production-5bbc.up.railway.app/chat", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ message: userInput }),
