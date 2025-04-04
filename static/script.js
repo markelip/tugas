@@ -3,11 +3,7 @@ document.getElementById("send").addEventListener("click", async function () {
     if (!userInput.trim()) return;
 
     let chatContainer = document.getElementById("chat-container");
-
-    // Tambahkan pesan pengguna
-    let userMessage = `<div class="bubble user">${userInput}</div>`;
-    chatContainer.innerHTML += userMessage;
-
+    chatContainer.innerHTML += `<div class="bubble user">${userInput}</div>`;
     document.getElementById("user-input").value = "";
 
     try {
@@ -18,12 +14,9 @@ document.getElementById("send").addEventListener("click", async function () {
         });
 
         let data = await response.json();
-
-        let botMessage = `<div class="bubble bot">${data.response}</div>`;
-        chatContainer.innerHTML += botMessage;
+        chatContainer.innerHTML += `<div class="bubble bot">${data.response}</div>`;
     } catch (error) {
         console.error("Error:", error);
-        let errorMessage = `<div class="bubble bot">⚠️ Error, coba lagi.</div>`;
-        chatContainer.innerHTML += errorMessage;
+        chatContainer.innerHTML += `<div class="bubble bot">⚠️ Error, coba lagi.</div>`;
     }
 });
