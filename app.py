@@ -1,9 +1,11 @@
 from flask import Flask, render_template, request, jsonify
+from flask_cors import CORS  # Tambahkan ini
 import google.generativeai as genai
 import os
 from dotenv import load_dotenv
 
 app = Flask(__name__)
+CORS(app)  # Aktifkan CORS di seluruh route
 
 # Load variabel dari file .env (hanya berfungsi secara lokal)
 load_dotenv()
@@ -14,8 +16,8 @@ API_KEY = os.getenv("GEMINI_API_KEY")
 if not API_KEY:
     raise ValueError("❌ API Key tidak ditemukan! Cek .env atau Variables di Railway!")
 
-print(f"✅ API Key ditemukan: {API_KEY[:5]}...")  # Debugging, cuma nampilin sebagian
-print(f"🔍 API Key dari Railway: {API_KEY}")  # Cek API Key terbaca atau nggak
+print(f"✅ API Key ditemukan: {API_KEY[:5]}...")
+print(f"🔍 API Key dari Railway: {API_KEY}")
 
 # Konfigurasi API Key & Model
 try:
