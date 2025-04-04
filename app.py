@@ -5,7 +5,7 @@ import os
 from dotenv import load_dotenv
 
 app = Flask(__name__)
-CORS(app, origins=["https://41dc1663.tugas.pages.dev"])  # ⬅️ Izinkan domain Cloudflare
+CORS(app, origins=[https://tugas.pages.dev/])  # ⬅️ Izinkan domain Cloudflare
 
 # Load variabel dari file .env (lokal)
 load_dotenv()
