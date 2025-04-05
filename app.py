@@ -10,14 +10,11 @@ load_dotenv()
 app = Flask(__name__, static_url_path='/static', static_folder='static')
 CORS(app)
 
-# Konfigurasi API key
+# Set API Key
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 
-# Inisialisasi model dengan API v1
-model = genai.GenerativeModel(model_name="gemini-pro")
-
-# Mulai sesi chat
-chat_session = model.start_chat(history=[])
+# Pakai model gemini-pro (bisa untuk generate_content di versi gratis)
+model = genai.GenerativeModel("gemini-pro")
 
 @app.route("/")
 def index():
@@ -28,21 +25,20 @@ def chat():
     data = request.get_json()
     user_input = data.get("message", "").strip()
 
-    try:
-        response = chat_session.send_message(
-            f"""
-            Kamu adalah chatbot AI bernama BotFarouq. Jawab semua pertanyaan dengan gaya Gen Z yang santai, lucu, dan pintar.
-            Boleh pakai emoji, bahasa gaul, dan jokes receh.
+    prompt = f"""
+    Kamu adalah chatbot AI bernama BotFarouq. Jawab semua pertanyaan dengan gaya Gen Z yang santai, lucu, dan pintar.
+    Boleh pakai emoji, bahasa gaul, dan jokes receh.
 
-            User: {user_input}
-            Bot:
-            """
-        )
+    User: {user_input}
+    Bot:
+    """
+
+    try:
+        response = model.generate_content(prompt)
         return jsonify({"response": response.text})
     except Exception as e:
         return jsonify({"response": f"⚠️ Error: {str(e)}"})
 
-# Untuk file statis (ikon, dll)
 @app.route("/static/<path:filename>")
 def static_files(filename):
     return send_from_directory("static", filename)
