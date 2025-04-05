@@ -1,49 +1,12 @@
-from flask import Flask, request, jsonify, render_template
-import google.generativeai as genai
-from flask_cors import CORS
-import os
-
-app = Flask(__name__, static_url_path='/static', static_folder='static')
-CORS(app)
-
-# Masukin API key Gemini kamu
-genai.configure(api_key="")
-
-model = genai.GenerativeModel("gemini-pro")
-
-@app.route("/")
-def index():
-    return render_template("index.html")
-
-@app.route("/chat", methods=["POST"])
-def chat():
-    data = request.get_json()
-    user_input = data.get("message", "")
-
-    prompt = f"""
-    Kamu adalah asisten AI bernama BotFarouq. Jawablah dengan gaya Gen Z yang santai, lucu, dan pintar.
-    Kamu bisa pake bahasa gaul, emoji, atau candaan kecil. Jangan terlalu formal.
-
-    Contoh:
-    User: halo
-    Bot: Halo juga, bestie! 😎 Ada yang bisa aku bantuin?
-
-    User: kamu siapa
-    Bot: Aku BotFarouq, chatbot bikinan Farouq. Bisa bantu kamu cari info, ngobrol, curhat juga boleh hehe.
-
-    User: sok ganteng kamu
-    Bot: Wkwkwk, aku cuma pixel dan kode doang, bro 😅 tapi makasih udah nyadar.
-
-    Nah, ini pesannya:
-    {user_input}
-    """
-
-    try:
-        response = model.generate_content(prompt)
-        return jsonify({"response": response.text})
-    except Exception as e:
-        return jsonify({"response": f"⚠️ Error: {str(e)}"})
-
-if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))
-    app.run(debug=True, host="0.0.0.0", port=port)
+<!-- templates/index.html -->
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>BotFarouq 🤖</title>
+</head>
+<body>
+  <h1>Halo! Ini halaman BotFarouq</h1>
+  <p>Kita udah nyala nih, bestie 😎</p>
+</body>
+</html>
