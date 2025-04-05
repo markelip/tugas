@@ -4,17 +4,20 @@ import google.generativeai as genai
 import os
 from dotenv import load_dotenv
 
-# Load .env (bisa diabaikan di Railway, karena pakai Environment Variable)
+# Load .env
 load_dotenv()
 
 app = Flask(__name__, static_url_path='/static', static_folder='static')
 CORS(app)
 
-# API key dari environment variable
+# Konfigurasi API key
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 
-# Pakai model yang bener
-model = genai.GenerativeModel("models/gemini-pro")
+# Inisialisasi model dengan API v1
+model = genai.GenerativeModel(model_name="gemini-pro")
+
+# Mulai sesi chat
+chat_session = model.start_chat(history=[])
 
 @app.route("/")
 def index():
@@ -25,19 +28,21 @@ def chat():
     data = request.get_json()
     user_input = data.get("message", "").strip()
 
-    prompt = f"""
-    Kamu adalah chatbot AI bernama BotFarouq. Jawab dengan gaya Gen Z yang santai, lucu, dan pintar. Boleh pakai emoji, bahasa gaul, dan jokes receh.
-
-    User: {user_input}
-    Bot:
-    """
-
     try:
-        response = model.generate_content(prompt)
+        response = chat_session.send_message(
+            f"""
+            Kamu adalah chatbot AI bernama BotFarouq. Jawab semua pertanyaan dengan gaya Gen Z yang santai, lucu, dan pintar.
+            Boleh pakai emoji, bahasa gaul, dan jokes receh.
+
+            User: {user_input}
+            Bot:
+            """
+        )
         return jsonify({"response": response.text})
     except Exception as e:
         return jsonify({"response": f"⚠️ Error: {str(e)}"})
 
+# Untuk file statis (ikon, dll)
 @app.route("/static/<path:filename>")
 def static_files(filename):
     return send_from_directory("static", filename)
