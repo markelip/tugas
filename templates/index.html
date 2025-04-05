@@ -1,12 +1,154 @@
-<!-- templates/index.html -->
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <title>BotFarouq 🤖</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BotFarouq</title>
+
+  <!-- Ikon dan Manifest -->
+  <link rel="shortcut icon" href="/static/icons/favicon.ico" />
+  <link rel="icon" type="image/svg+xml" href="/static/icons/favicon.svg" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/static/icons/apple-touch-icon.png" />
+  <link rel="manifest" href="/static/icons/site.webmanifest" />
+  <meta name="theme-color" content="#4b6cb7" />
+
+  <style>
+    body {
+      font-family: sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f2f2f2;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+
+    header {
+      background: #4b6cb7;
+      color: white;
+      padding: 15px;
+      text-align: center;
+      font-size: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    header img {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+    }
+
+    #chat-container {
+      flex: 1;
+      padding: 20px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .bubble {
+      max-width: 80%;
+      margin: 5px 10px;
+      padding: 12px 16px;
+      border-radius: 20px;
+      line-height: 1.4;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      word-wrap: break-word;
+      display: inline-block;
+      white-space: pre-wrap;
+    }
+
+    .user {
+      background: #d1e7dd;
+      align-self: flex-end;
+      border-bottom-right-radius: 0;
+    }
+
+    .bot {
+      background: #f8d7da;
+      align-self: flex-start;
+      border-bottom-left-radius: 0;
+    }
+
+    #input-container {
+      display: flex;
+      padding: 10px;
+      background: #fff;
+    }
+
+    #user-input {
+      flex: 1;
+      padding: 8px;
+      font-size: 16px;
+    }
+
+    #send {
+      padding: 8px 15px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+  </style>
 </head>
 <body>
-  <h1>Halo! Ini halaman BotFarouq</h1>
-  <p>Kita udah nyala nih, bestie 😎</p>
+  <header>
+    <img src="/static/icons/favicon-96x96.png" alt="Logo">
+    <span>BotFarouq</span>
+  </header>
+
+  <div id="chat-container"></div>
+
+  <div id="input-container">
+    <input type="text" id="user-input" placeholder="Tulis pesan..." autocomplete="off" />
+    <button id="send">Kirim</button>
+  </div>
+
+  <script>
+    const chatContainer = document.getElementById("chat-container");
+    const userInputEl = document.getElementById("user-input");
+    const sendBtn = document.getElementById("send");
+
+    function appendMessage(text, sender) {
+      const div = document.createElement("div");
+      div.className = `bubble ${sender}`;
+      div.textContent = text;
+      chatContainer.appendChild(div);
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+
+    async function sendMessage() {
+      const message = userInputEl.value.trim();
+      if (!message) return;
+      appendMessage(message, "user");
+      userInputEl.value = "";
+
+      try {
+        const response = await fetch("/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message }),
+        });
+
+        const data = await response.json();
+        appendMessage(data.response, "bot");
+      } catch (err) {
+        appendMessage("⚠️ Error: nggak bisa terhubung ke server.", "bot");
+      }
+    }
+
+    sendBtn.addEventListener("click", sendMessage);
+    userInputEl.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") sendMessage();
+    });
+
+    // Service Worker
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("/static/sw.js");
+      });
+    }
+  </script>
 </body>
 </html>
