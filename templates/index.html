@@ -1,60 +1,56 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chatbot by Farouq</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chatbot by Farouq</title>
+  <link rel="manifest" href="/manifest.json" />
+  <link rel="stylesheet" href="/static/style.css" />
+  <meta name="theme-color" content="#0084ff" />
+  <link rel="icon" href="/static/icon-192.png" />
 </head>
 <body>
-    <div class="chat-container">
-        <header>
-            <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo" class="logo">
-            <h1>Chatbot by Farouq</h1>
-        </header>
-        
-        <div id="chat-box">
-            <!-- Chat akan muncul di sini -->
-        </div>
-        
-        <div class="input-container">
-            <input type="text" id="user-input" placeholder="Ketik pesan...">
-            <button onclick="sendMessage()">Kirim</button>
-        </div>
-    </div>
+  <div class="app">
+    <header>
+      <img src="/static/icon-192.png" alt="logo" class="logo" />
+      <h1>Chatbot by Farouq</h1>
+    </header>
+    <main id="chat-container" class="chat-container"></main>
+    <footer>
+      <input type="text" id="user-input" placeholder="Tulis pesan..." />
+      <button id="send">Kirim</button>
+    </footer>
+  </div>
 
-    <script>
-        function sendMessage() {
-            let inputField = document.getElementById("user-input");
-            let message = inputField.value.trim();
-            if (message === "") return;
+  <script>
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("/service-worker.js").then(() => {
+        console.log("✅ Service Worker terdaftar!");
+      });
+    }
 
-            let chatBox = document.getElementById("chat-box");
+    document.getElementById("send").addEventListener("click", async function () {
+      let userInput = document.getElementById("user-input").value;
+      if (!userInput.trim()) return;
 
-            // Tambahkan pesan pengguna ke chat
-            let userMessage = `<div class="message user-message">${message}</div>`;
-            chatBox.innerHTML += userMessage;
+      let chatContainer = document.getElementById("chat-container");
+      chatContainer.innerHTML += `<div class="bubble user">${userInput}</div>`;
+      document.getElementById("user-input").value = "";
 
-            // Hapus teks di input
-            inputField.value = "";
+      try {
+        let response = await fetch("/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message: userInput }),
+        });
 
-            // Kirim ke server
-            fetch("/chat", {
-                method: "POST",
-                body: JSON.stringify({ message: message }),
-                headers: { "Content-Type": "application/json" }
-            })
-            .then(response => response.json())
-            .then(data => {
-                let botMessage = `<div class="message bot-message">${data.response}</div>`;
-                chatBox.innerHTML += botMessage;
-            })
-            .catch(error => {
-                console.error("Error:", error);
-                let errorMessage = `<div class="message bot-message">⚠️ Error: Tidak bisa mendapatkan balasan.</div>`;
-                chatBox.innerHTML += errorMessage;
-            });
-        }
-    </script>
+        let data = await response.json();
+        chatContainer.innerHTML += `<div class="bubble bot">${data.response}</div>`;
+      } catch (error) {
+        console.error("Error:", error);
+        chatContainer.innerHTML += `<div class="bubble bot">⚠️ Error, coba lagi.</div>`;
+      }
+    });
+  </script>
 </body>
 </html>
