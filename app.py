@@ -4,24 +4,29 @@ import google.generativeai as genai
 import os
 from dotenv import load_dotenv
 
-# Load .env (biar aman dari public repo)
+# Load .env biar API key aman
 load_dotenv()
 
+# Konfigurasi Flask
 app = Flask(__name__, static_url_path='/static', static_folder='static')
 CORS(app)
 
-# Masukin API key dari environment variable
-genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+# Konfigurasi Gemini API (v1 supaya support gemini-pro)
+genai.configure(
+    api_key=os.getenv("GEMINI_API_KEY"),
+    transport="rest",  # Gunakan REST biar lebih stabil
+    api_version="v1"
+)
 
-# Inisialisasi model Gemini
-model = genai.GenerativeModel("gemini-pro")
+# Inisialisasi model
+model = genai.GenerativeModel(model_name="models/gemini-pro")
 
 # Route utama
 @app.route("/")
 def index():
     return render_template("index.html")
 
-# Route chat
+# Route chat buat frontend
 @app.route("/chat", methods=["POST"])
 def chat():
     data = request.get_json()
@@ -52,11 +57,12 @@ def chat():
     except Exception as e:
         return jsonify({"response": f"⚠️ Error: {str(e)}"})
 
-# Untuk file statis (ikon, sw.js, dll)
+# Untuk file statis (ikon, manifest, sw.js, dsb)
 @app.route("/static/<path:filename>")
 def static_files(filename):
     return send_from_directory("static", filename)
 
+# Jalankan server
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(debug=True, host="0.0.0.0", port=port)
