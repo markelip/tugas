@@ -5,13 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>BotFarouq</title>
 
-  <!-- Favicon & Web App Icons -->
-  <link rel="icon" type="image/png" href="/static/icons/favicon-96x96.png" sizes="96x96" />
-  <link rel="icon" type="image/svg+xml" href="/static/icons/favicon.svg" />
+  <!-- Ikon dan Manifest -->
   <link rel="shortcut icon" href="/static/icons/favicon.ico" />
+  <link rel="icon" type="image/svg+xml" href="/static/icons/favicon.svg" />
   <link rel="apple-touch-icon" sizes="180x180" href="/static/icons/apple-touch-icon.png" />
   <link rel="manifest" href="/static/icons/site.webmanifest" />
-  <meta name="theme-color" content="#ffffff" />
+  <meta name="theme-color" content="#4b6cb7" />
 
   <style>
     body {
@@ -44,25 +43,35 @@
 
     #chat-container {
       flex: 1;
-      padding: 10px;
+      padding: 20px;
       overflow-y: auto;
+      display: flex;
+      flex-direction: column;
     }
 
     .bubble {
       max-width: 80%;
-      margin: 5px 0;
-      padding: 10px;
-      border-radius: 10px;
+      margin: 5px 10px;
+      padding: 12px 16px;
+      border-radius: 20px;
+      line-height: 1.4;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      word-wrap: break-word;
+      display: inline-block;
     }
 
     .user {
       background: #d1e7dd;
       align-self: flex-end;
+      border-bottom-right-radius: 0;
+      margin-left: auto;
     }
 
     .bot {
       background: #f8d7da;
       align-self: flex-start;
+      border-bottom-left-radius: 0;
+      margin-right: auto;
     }
 
     #input-container {
@@ -102,6 +111,7 @@
       if (!userInput.trim()) return;
 
       let chatContainer = document.getElementById("chat-container");
+
       chatContainer.innerHTML += `<div class="bubble user">${userInput}</div>`;
       document.getElementById("user-input").value = "";
 
