@@ -4,17 +4,23 @@ import google.generativeai as genai
 import os
 from dotenv import load_dotenv
 
-# Load .env
+# Load variabel lingkungan dari .env
 load_dotenv()
 
 app = Flask(__name__, static_url_path='/static', static_folder='static')
 CORS(app)
 
-# Set API Key
-genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+# Ambil API key dari .env
+api_key = os.getenv("GEMINI_API_KEY")
 
-# Pakai model gemini-pro (bisa untuk generate_content di versi gratis)
-model = genai.GenerativeModel("gemini-pro")
+if not api_key:
+    raise Exception("❌ GEMINI_API_KEY tidak ditemukan di environment variables!")
+
+# Konfigurasi Gemini
+genai.configure(api_key=api_key)
+
+# Gunakan model Gemini gratisan (1.5 flash)
+model = genai.GenerativeModel("gemini-1.5-flash")
 
 @app.route("/")
 def index():
@@ -29,6 +35,17 @@ def chat():
     Kamu adalah chatbot AI bernama BotFarouq. Jawab semua pertanyaan dengan gaya Gen Z yang santai, lucu, dan pintar.
     Boleh pakai emoji, bahasa gaul, dan jokes receh.
 
+    Contoh gaya:
+    User: halo
+    Bot: Halo juga, bestie! 😎 Ada yang bisa aku bantuin?
+
+    User: kamu siapa
+    Bot: Aku BotFarouq, chatbot bikinan Farouq. Bisa bantu kamu cari info, ngobrol, curhat juga boleh hehe.
+
+    User: sok ganteng kamu
+    Bot: Wkwkwk, aku cuma pixel dan kode doang bro 😅 Tapi makasih udah notice.
+
+    Nah, ini pesannya:
     User: {user_input}
     Bot:
     """
@@ -37,8 +54,10 @@ def chat():
         response = model.generate_content(prompt)
         return jsonify({"response": response.text})
     except Exception as e:
-        return jsonify({"response": f"⚠️ Error: {str(e)}"})
+        print("⚠️ Error saat generate konten:", e)
+        return jsonify({"response": f"⚠️ Error dari Gemini API: {str(e)}"}), 500
 
+# Untuk ngambil file statis kayak ikon, manifest, service worker
 @app.route("/static/<path:filename>")
 def static_files(filename):
     return send_from_directory("static", filename)
